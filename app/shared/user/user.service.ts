@@ -9,9 +9,9 @@ import { Config } from "../config";
 
 @Injectable()
 export class UserService {
-  constructor(private http: Http) {}
+  constructor( private http: Http ) {} 
 
-  register(user: User) {
+  register( user: User ) {
     let headers = new Headers();
     headers.append("Content-Type", "application/json");
 
@@ -27,7 +27,27 @@ export class UserService {
     .catch(this.handleErrors);
   }
 
-  handleErrors(error: Response) {
+  login( user: User ) {
+    let headers = new Headers();
+    headers.append("Content-Type", "application/json");
+  
+    return this.http.post(
+      Config.apiUrl + "oauth/token",
+      JSON.stringify({
+        username: user.email,
+        password: user.password,
+        grant_type: "password"
+      }),
+      { headers: headers }
+    )
+    .map(response => response.json())
+    .do(data => {
+      Config.token = data.Result.access_token;
+    })
+    .catch(this.handleErrors);
+  }
+
+  handleErrors( error: Response ) {
     console.log(JSON.stringify(error.json()));
     return Observable.throw(error);
   }
